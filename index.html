@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Speedrun v4.0: Real Numbers</title>
+    <title>Math Speedrun v5.0: Infinite Gen</title>
     <style>
         :root {
-            --primary: #0984e3; /* Changed to Blue for Logic/Real Numbers */
+            --primary: #6c5ce7;
             --secondary: #2d3436;
             --accent: #00cec9;
             --success: #00b894;
@@ -48,17 +48,57 @@
             color: var(--accent);
             padding: 2rem;
             border-radius: 12px;
-            font-size: 1.8rem;
+            font-size: 2rem;
             margin-bottom: 1.5rem;
-            min-height: 120px;
+            min-height: 140px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Times New Roman', Times, serif; /* Math font */
+            font-style: italic;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
             border: 2px solid #b2bec3;
             transition: transform 0.1s;
             flex-direction: column;
+        }
+
+        /* MATH RENDERING CSS */
+        .fraction {
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+            margin: 0 5px;
+            font-style: normal;
+        }
+        .fraction .top {
+            display: block;
+            border-bottom: 2px solid var(--accent);
+            padding: 2px;
+        }
+        .fraction .bottom {
+            display: block;
+            padding: 2px;
+        }
+        
+        .radical {
+            display: inline-block;
+            margin: 0 2px;
+            font-style: normal;
+            white-space: nowrap;
+        }
+        .radical .index {
+            font-size: 0.6em;
+            vertical-align: super;
+            margin-right: -4px;
+        }
+        .radical .symbol {
+            font-size: 1.2em;
+        }
+        .radical .radicand {
+            border-top: 2px solid var(--accent);
+            padding-top: 1px;
+            padding-left: 2px;
+            display: inline-block;
         }
 
         .shake { animation: shake 0.5s; }
@@ -92,7 +132,7 @@
             border-radius: 10px;
             margin-bottom: 1rem;
             text-align: center;
-            font-family: 'Courier New', monospace;
+            font-family: 'Segoe UI', sans-serif;
             font-weight: bold;
             outline: none;
             transition: border-color 0.3s;
@@ -174,10 +214,9 @@
             margin-bottom: 10px;
             letter-spacing: 1px;
         }
-        .lvl-basic { background: #ffeaa7; color: #d35400; }
-        .lvl-hard { background: #a29bfe; color: #2d3436; }
+        .lvl-bedmas { background: #ffeaa7; color: #d35400; }
         .lvl-tiles { background: #fab1a0; color: #2d3436; }
-        .lvl-numline { background: #74b9ff; color: #2d3436; }
+        .lvl-hard { background: #a29bfe; color: #2d3436; }
         .lvl-real { background: #6c5ce7; color: white; }
 
         /* Tile Visuals for Feedback */
@@ -200,7 +239,7 @@
 <div class="game-container">
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <h1>MATH SPEEDRUN</h1>
-        <span style="font-size:0.8rem; color:#b2bec3;">v4.0</span>
+        <span style="font-size:0.8rem; color:#b2bec3;">v5.0 (Infinite)</span>
     </div>
     
     <div id="progress-container">
@@ -223,128 +262,146 @@
 
     <div id="feedback-area"></div>
 
-    <p class="syntax-tip" id="tip-text">Tip: Multiplication comes before Addition.</p>
+    <p class="syntax-tip" id="tip-text">Loading instructions...</p>
 </div>
 
 <script>
-    // Helper to generate tile HTML string
+    // --- HELPER FUNCTIONS ---
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
     const drawTiles = (count, color) => {
         let html = '';
         const cClass = color === 'red' ? 't-red' : 't-blue';
         for(let i=0; i<Math.abs(count); i++) html += `<span class="tile ${cClass}"></span>`;
         return html;
     };
+    
+    // --- QUESTION GENERATORS ---
 
-    const questions = [
-        // --- LEVEL 1: BEDMAS FUNDAMENTALS ---
-        {
-            q: "10 - 2 × 3",
-            a: 4,
-            level: "Basic",
-            style: "lvl-basic",
-            steps: "1. <strong>Multiply First:</strong> 2 × 3 = 6.<br>2. <strong>Subtract:</strong> 10 - 6 = 4.<br><em>(Trap: Don't do 10-2 first!)</em>"
-        },
-        {
-            q: "−5 + (10 ÷ 2)",
-            a: 0,
-            level: "Basic",
-            style: "lvl-basic",
-            steps: "1. <strong>Brackets:</strong> 10 ÷ 2 = 5.<br>2. <strong>Add:</strong> -5 + 5 = 0.<br><em>(Zero Pair!)</em>"
-        },
-        
-        // --- LEVEL 2: INTEGERS & EXPONENTS ---
-        {
-            q: "-3² + 5",
-            a: -4,
-            level: "Hard Mode",
-            style: "lvl-hard",
-            steps: "1. <strong>Exponent Trap:</strong> -3² has NO brackets. It means -(3×3) = -9.<br>2. <strong>Add:</strong> -9 + 5 = -4."
-        },
-
-        // --- LEVEL 3: INTEGER TILES ---
-        {
-            q: "Tile Check:<br>1 Blue minus 3 Red",
-            a: -4,
-            level: "Integer Tiles",
-            style: "lvl-tiles",
-            steps: `1. <strong>Start:</strong> ${drawTiles(1, 'blue')}<br>
-                    2. <strong>Borrowing:</strong> Add 3 Zero Pairs (${drawTiles(3, 'red')}${drawTiles(3, 'blue')}).<br>
-                    3. <strong>Action:</strong> Take 3 Reds away.<br>
-                    4. <strong>Result:</strong> ${drawTiles(4, 'blue')} (-4).`
-        },
-        {
-            q: "Syntax Boss:<br>2 - (-4)",
-            a: 6,
-            level: "Tile Mastery",
-            style: "lvl-tiles",
-            steps: `1. <strong>Teleport Rule:</strong> Two negatives make a positive (+).<br>
-                    2. <strong>Rewrite:</strong> 2 + 4<br>
-                    3. <strong>Result:</strong> ${drawTiles(6, 'red')} (6).`
-        },
-
-        // --- LEVEL 4: THE NUMBER LINE (Decimals) ---
-        {
-            q: "Convert to Decimal:<br>3/5",
-            a: 0.6,
-            level: "Number Line",
-            style: "lvl-numline",
-            steps: "1. <strong>Fraction Rule:</strong> Top ÷ Bottom.<br>2. <strong>Calc:</strong> 3 ÷ 5 = 0.6."
-        },
-        {
-            q: "Convert to Decimal:<br>110%",
-            a: 1.1,
-            level: "Number Line",
-            style: "lvl-numline",
-            steps: "1. <strong>Percent Rule:</strong> Move decimal 2 spots left.<br>2. <strong>Calc:</strong> 1.10"
-        },
-        {
-            q: "<strong>The Trap:</strong><br>Enter the <em>smaller</em> number:<br>-1.5 or -2.0",
-            a: -2,
-            level: "Number Line",
-            style: "lvl-numline",
-            steps: "1. <strong>Negative Rule:</strong> The number <em>further from zero</em> is smaller.<br>2. <strong>Compare:</strong> -2 is deeper in debt than -1.5."
-        },
-        {
-            q: "<strong>Hat Trick:</strong><br>Calc 4th Root of 2 (√[4] 2)<br>(Round to 2 decimals)",
-            a: 1.19,
-            level: "Number Line",
-            style: "lvl-numline",
-            steps: "1. <strong>Syntax:</strong> 4 -> Shift -> Hat -> 2.<br>2. <strong>Calc:</strong> 1.1892...<br>3. <strong>Round:</strong> 1.19"
-        },
-
-        // --- LEVEL 5: REAL NUMBER SORTING ---
-        {
-            q: "<strong>Identify:</strong><br>0.3333...<br><span style='font-size:0.6em'>(Type 1=Rational, 0=Irrational)</span>",
-            a: 1,
-            level: "Real Numbers",
-            style: "lvl-real",
-            steps: "1. <strong>Rule:</strong> Repeating pattern (bar) = Good.<br>2. <strong>Result:</strong> Rational (It's 1/3)."
-        },
-        {
-            q: "<strong>Identify:</strong><br>√5<br><span style='font-size:0.6em'>(Type 1=Rational, 0=Irrational)</span>",
-            a: 0,
-            level: "Real Numbers",
-            style: "lvl-real",
-            steps: "1. <strong>Rule:</strong> Root of a Prime Number.<br>2. <strong>Result:</strong> Irrational (Chaos)."
-        },
-        {
-            q: "<strong>The Boss:</strong><br>0.101001000...<br><span style='font-size:0.6em'>(Type 1=Rational, 0=Irrational)</span>",
-            a: 0,
-            level: "Real Numbers",
-            style: "lvl-real",
-            steps: "1. <strong>Trap:</strong> The pattern <em>changes</em> (adds more zeros).<br>2. <strong>Result:</strong> Irrational (No fixed pattern)."
+    // 1. BEDMAS Generator (Dynamic)
+    function genBedmas() {
+        const type = rand(1, 3);
+        if (type === 1) { // 10 - 2 x 3 style
+            const a = rand(5, 15);
+            const b = rand(2, 5);
+            const c = rand(2, 5);
+            return {
+                q: `${a} - ${b} × ${c}`,
+                a: a - (b * c),
+                level: "BEDMAS",
+                style: "lvl-bedmas",
+                steps: `1. <strong>Multiply First:</strong> ${b} × ${c} = ${b*c}<br>2. <strong>Subtract:</strong> ${a} - ${b*c} = ${a - (b*c)}`
+            };
+        } else if (type === 2) { // Brackets (2 + 3) x 4
+            const a = rand(2, 6);
+            const b = rand(2, 6);
+            const c = rand(2, 5);
+            return {
+                q: `(${a} + ${b}) × ${c}`,
+                a: (a + b) * c,
+                level: "BEDMAS",
+                style: "lvl-bedmas",
+                steps: `1. <strong>Brackets:</strong> ${a} + ${b} = ${a+b}<br>2. <strong>Multiply:</strong> ${a+b} × ${c} = ${(a+b)*c}`
+            };
+        } else { // Exponents -3^2 + 5
+             const base = rand(2, 4);
+             const add = rand(2, 10);
+             return {
+                 q: `-${base}<sup>2</sup> + ${add}`,
+                 a: -(base*base) + add,
+                 level: "Exponents",
+                 style: "lvl-hard",
+                 steps: `1. <strong>The Trap:</strong> -${base}² means -(${base}×${base}) = -${base*base}<br>2. <strong>Add:</strong> -${base*base} + ${add} = ${-(base*base)+add}`
+             };
         }
+    }
+
+    // 2. Tile/Integer Generator (Dynamic)
+    function genTiles() {
+        const type = rand(1, 2);
+        if (type === 1) { // Simple Cancellation
+            const red = rand(3, 8);
+            const blue = rand(3, 8);
+            const diff = red - blue;
+            const resultColor = diff >= 0 ? 'red' : 'blue';
+            return {
+                q: `Tile Battle:<br>${red} Reds vs ${blue} Blues`,
+                a: diff,
+                level: "Integer Tiles",
+                style: "lvl-tiles",
+                steps: `1. <strong>Battle:</strong> The smaller army (${Math.min(red, blue)}) is wiped out.<br>2. <strong>Result:</strong> ${Math.abs(diff)} ${resultColor}s survive.`
+            };
+        } else { // The Subtraction Trap (Double Negative)
+            const start = rand(2, 8);
+            const subtract = rand(2, 8); // subtracting negative
+            return {
+                q: `${start} - (-${subtract})`,
+                a: start + subtract,
+                level: "Integer Tiles",
+                style: "lvl-tiles",
+                steps: `1. <strong>Teleport Rule:</strong> -(-) becomes +.<br>2. <strong>Rewrite:</strong> ${start} + ${subtract}<br>3. <strong>Solve:</strong> ${start+subtract}`
+            };
+        }
+    }
+
+    // 3. Real Number Sorting (Hard Coded Pool from Image + Logic)
+    // 1 = Rational, 0 = Irrational
+    const hardRealNums = [
+        { q: `<div class="fraction"><span class="top">&radic;<span style="text-decoration:overline">49</span></span><span class="bottom">7</span></div>`, a: 1, steps: "√49 is 7. So this is 7/7 = 1. (Rational)" },
+        { q: `<div class="fraction"><span class="top">&radic;<span style="text-decoration:overline">50</span></span><span class="bottom">5</span></div>`, a: 0, steps: "√50 is NOT a perfect square. It's ≈7.07. Divided by 5 it's still messy. (Irrational)" },
+        { q: `<span class="radical"><span class="index">4</span><span class="symbol">&radic;</span><span class="radicand">2</span></span>`, a: 0, steps: "4th root of 2 is not a whole number. Roots of non-perfect powers are Irrational." },
+        { q: `3.14159`, a: 1, steps: "<strong>Trick!</strong> This stops. It doesn't have '...'. So it's a decimal. (Rational)" },
+        { q: `&pi;`, a: 0, steps: "Pi goes on forever without repeating. (Irrational)" },
+        { q: `0.101001000...`, a: 0, steps: "The pattern changes (adds more zeros). Changing pattern = Irrational." },
+        { q: `0.999...`, a: 1, steps: "Repeating pattern = Rational. (Fun fact: This equals 1)." },
+        { q: `<span class="radical"><span class="symbol">&radic;</span><span class="radicand">12</span></span> + <span class="radical"><span class="symbol">&radic;</span><span class="radicand">3</span></span>`, a: 0, steps: "√12 is 2√3. Total is 3√3. Still contains a root. (Irrational)" },
+        { q: `<div class="fraction"><span class="top">&radic;<span style="text-decoration:overline">9</span></span><span class="bottom">16</span></div>`, a: 1, steps: "√9 is 3. So this is 3/16. A fraction of integers is Rational." }
     ];
 
+    function genRealNum() {
+        const item = hardRealNums[rand(0, hardRealNums.length - 1)];
+        return {
+            q: `<strong>Rational(1) or Irrational(0)?</strong><br><br>${item.q}`,
+            a: item.a,
+            level: "Real Numbers",
+            style: "lvl-real",
+            steps: item.steps
+        };
+    }
+
+    // --- GAME ENGINE ---
+    let questions = [];
     let currentIdx = 0;
     let score = 0;
     let streak = 0;
+
+    function initGame() {
+        questions = [];
+        // Build a playlist of 10 questions
+        for(let i=0; i<3; i++) questions.push(genBedmas());
+        for(let i=0; i<3; i++) questions.push(genTiles());
+        for(let i=0; i<4; i++) questions.push(genRealNum());
+        
+        // Shuffle the playlist (Fisher-Yates)
+        for (let i = questions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [questions[i], questions[j]] = [questions[j], questions[i]];
+        }
+
+        currentIdx = 0;
+        score = 0;
+        streak = 0;
+        document.getElementById('score').innerText = "0";
+        document.getElementById('streak').innerText = "0";
+        document.getElementById('progress-bar').style.width = "0%";
+        loadQuestion();
+    }
 
     function loadQuestion() {
         const gameArea = document.getElementById('game-area');
         const feedbackArea = document.getElementById('feedback-area');
         const progressBar = document.getElementById('progress-bar');
         const problemBox = document.getElementById('problem-box');
+        const tipText = document.getElementById('tip-text');
 
         // Reset UI
         feedbackArea.style.display = 'none';
@@ -357,11 +414,10 @@
         // Check for Win
         if(currentIdx >= questions.length) {
             gameArea.innerHTML = `
-                <h2>👑 REAL NUMBER GOD 👑</h2>
+                <h2>👑 RUN COMPLETE 👑</h2>
                 <div style="font-size: 3rem; margin: 20px;">♾️</div>
                 <p>Final XP: ${score} / ${questions.length}</p>
-                <p>Max Streak: ${streak}</p>
-                <button onclick="location.reload()">Prestige (Restart)</button>
+                <button onclick="location.reload()">Start New Run</button>
             `;
             progressBar.style.width = '100%';
             document.getElementById('level-display').innerText = "MAX";
@@ -372,30 +428,26 @@
         const q = questions[currentIdx];
         document.getElementById('problem-box').innerHTML = `
             <span class="level-badge ${q.style}">${q.level}</span>
-            <div style="margin-top:10px">${q.q}</div>
+            <div style="margin-top:15px">${q.q}</div>
         `;
         
+        // Update Tip
+        if(q.level === "Real Numbers") {
+            tipText.innerText = "Type 1 for Rational (Pattern), 0 for Irrational (Chaos).";
+            document.getElementById('answer-input').placeholder = "1 or 0";
+        } else {
+            tipText.innerText = "Watch your signs! Left to right.";
+            document.getElementById('answer-input').placeholder = "?";
+        }
+
         // Update Stats
         const percent = (currentIdx / questions.length) * 100;
         progressBar.style.width = `${percent}%`;
-        document.getElementById('level-display').innerText = Math.floor((currentIdx/3) + 1);
-
-        // Update Tip based on level
-        const tipText = document.getElementById('tip-text');
-        if(q.level === "Number Line") {
-            tipText.innerText = "Tip: Percent ÷ 100. Fractions = Top ÷ Bottom.";
-        } else if (q.level === "Real Numbers") {
-            tipText.innerText = "Tip: Changing Pattern = Irrational. Repeating Pattern = Rational.";
-        } else if (q.level.includes("Tile")) {
-            tipText.innerText = "Tip: Red = (+1), Blue = (-1). A pair destroys both.";
-        } else {
-            tipText.innerText = "Tip: (-3)² is 9. But -3² is -9.";
-        }
+        document.getElementById('level-display').innerText = currentIdx + 1;
     }
 
     function checkAnswer() {
         const inputEl = document.getElementById('answer-input');
-        // V4.0 Change: Use parseFloat to handle decimals
         const userAns = parseFloat(inputEl.value);
         const feedbackArea = document.getElementById('feedback-area');
         const currentQ = questions[currentIdx];
@@ -408,11 +460,10 @@
             return;
         }
 
-        // Hide input area
         gameArea.style.display = 'none';
         feedbackArea.style.display = 'block';
 
-        let isCorrect = userAns === currentQ.a;
+        let isCorrect = Math.abs(userAns - currentQ.a) < 0.001; // Float tolerance
         let feedbackHTML = '';
 
         if(isCorrect) {
@@ -423,7 +474,7 @@
                 <div class="feedback-card correct">
                     <h3>✅ Critical Hit!</h3>
                     <p>${currentQ.steps}</p>
-                    <button onclick="nextQuestion()">Next Level >></button>
+                    <button onclick="nextQuestion()">Next >></button>
                 </div>
             `;
         } else {
@@ -436,14 +487,12 @@
                     <p><strong>Correct answer:</strong> ${currentQ.a}</p>
                     <hr>
                     <p>${currentQ.steps}</p>
-                    <button onclick="nextQuestion()">Recover & Continue >></button>
+                    <button onclick="nextQuestion()">Next >></button>
                 </div>
             `;
         }
 
         feedbackArea.innerHTML = feedbackHTML;
-        
-        // Update Stats
         document.getElementById('score').innerText = score;
         document.getElementById('streak').innerText = streak;
     }
@@ -454,7 +503,7 @@
     }
 
     // Start Game
-    loadQuestion();
+    initGame();
 </script>
 
 </body>
