@@ -376,10 +376,10 @@
 
     function initGame() {
         questions = [];
-        // Build a playlist of 10 questions
-        for(let i=0; i<3; i++) questions.push(genBedmas());
-        for(let i=0; i<3; i++) questions.push(genTiles());
-        for(let i=0; i<4; i++) questions.push(genRealNum());
+        // Build a playlist of 25 questions
+        for(let i=0; i<9; i++) questions.push(genBedmas());
+        for(let i=0; i<8; i++) questions.push(genTiles());
+        for(let i=0; i<8; i++) questions.push(genRealNum());
         
         // Shuffle the playlist (Fisher-Yates)
         for (let i = questions.length - 1; i > 0; i--) {
