@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BEDMAS Speedrun v2.0: Hard Mode</title>
+    <title>BEDMAS & Algebra Speedrun v3.0</title>
     <style>
         :root {
-            --primary: #8e44ad; /* Changed to Purple for Hard Mode vibe */
-            --secondary: #2c3e50;
-            --success: #27ae60;
-            --danger: #c0392b;
-            --bg: #ecf0f1;
+            --primary: #6c5ce7;
+            --secondary: #2d3436;
+            --accent: #00cec9;
+            --success: #00b894;
+            --danger: #d63031;
+            --bg: #dfe6e9;
         }
 
         body {
@@ -21,85 +22,124 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            overflow-x: hidden;
         }
 
         .game-container {
             background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             width: 90%;
-            max-width: 500px;
+            max-width: 550px;
             text-align: center;
-            border-top: 5px solid var(--primary);
+            border-top: 6px solid var(--primary);
+            position: relative;
+            overflow: hidden;
         }
 
-        h1 { color: var(--secondary); margin-bottom: 0.5rem; font-size: 1.5rem;}
-        .stats { display: flex; justify-content: space-around; margin-bottom: 1rem; font-weight: bold; color: #555; }
+        h1 { color: var(--secondary); margin-bottom: 0.5rem; font-size: 1.8rem; letter-spacing: -1px;}
+        .stats { display: flex; justify-content: space-between; margin-bottom: 1.5rem; font-weight: 700; color: #636e72; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;}
         
         #problem-box {
             background: var(--secondary);
-            color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            font-size: 2rem; /* Larger text for math */
+            color: var(--accent);
+            padding: 2.5rem;
+            border-radius: 12px;
+            font-size: 2.2rem;
             margin-bottom: 1.5rem;
-            min-height: 80px;
+            min-height: 100px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Courier New', Courier, monospace; /* Code font for math */
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+            border: 2px solid #b2bec3;
+            transition: transform 0.1s;
+        }
+
+        .shake { animation: shake 0.5s; }
+        .pulse { animation: pulse 0.3s; }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 15px var(--success); }
+            100% { transform: scale(1); }
         }
 
         input {
-            width: 70%;
-            padding: 12px;
-            font-size: 1.3rem;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            width: 60%;
+            padding: 15px;
+            font-size: 1.5rem;
+            border: 3px solid #dfe6e9;
+            border-radius: 10px;
             margin-bottom: 1rem;
             text-align: center;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            outline: none;
+            transition: border-color 0.3s;
         }
+        input:focus { border-color: var(--primary); }
 
         button {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 15px 30px;
             font-size: 1.1rem;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: 0.2s;
-            font-weight: bold;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        button:hover { background: #732d91; transform: translateY(-2px); }
+        button:hover { background: #5649c0; transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
 
         #feedback-area {
             margin-top: 1.5rem;
-            display: none; /* Hidden by default */
+            display: none;
         }
 
         .feedback-card {
-            padding: 1rem;
-            border-radius: 8px;
+            padding: 1.5rem;
+            border-radius: 12px;
             text-align: left;
-            line-height: 1.5;
-            animation: fadeIn 0.3s ease-in;
+            line-height: 1.6;
+            animation: slideUp 0.3s ease-out;
+            position: relative;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .correct { background: #d4edda; color: #155724; border-left: 5px solid var(--success); }
-        .incorrect { background: #fadbd8; color: #721c24; border-left: 5px solid var(--danger); }
+        .correct { background: #dff9fb; color: #009432; border: 2px solid var(--success); }
+        .incorrect { background: #ff7675; color: white; border: 2px solid var(--danger); }
+        .incorrect h3 { color: white; }
+        .incorrect hr { border-color: rgba(255,255,255,0.3); }
         
         .syntax-tip {
             font-size: 0.85rem;
-            color: #7f8c8d;
+            color: #b2bec3;
             margin-top: 2rem;
             font-style: italic;
         }
@@ -107,31 +147,50 @@
         /* Progress Bar */
         #progress-container {
             width: 100%;
-            background-color: #ddd;
-            height: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+            background-color: #dfe6e9;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 25px;
             overflow: hidden;
+            position: relative;
         }
         #progress-bar {
             height: 100%;
-            background-color: var(--primary);
+            background: linear-gradient(90deg, var(--accent), var(--primary));
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+
+        .level-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .lvl-basic { background: #ffeaa7; color: #d35400; }
+        .lvl-hard { background: #a29bfe; color: #2d3436; }
+        .lvl-alg { background: #ff7675; color: white; }
 
     </style>
 </head>
 <body>
 
 <div class="game-container">
-    <h1>BEDMAS: The Gauntlet</h1>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h1>MATH SPEEDRUN</h1>
+        <span style="font-size:0.8rem; color:#b2bec3;">v3.0</span>
+    </div>
     
     <div id="progress-container">
         <div id="progress-bar"></div>
     </div>
 
     <div class="stats">
+        <span>LVL: <span id="level-display">1</span></span>
         <span>XP: <span id="score">0</span></span>
         <span>Streak: <span id="streak">0</span></span>
     </div>
@@ -139,75 +198,85 @@
     <div id="game-area">
         <div id="problem-box">Loading...</div>
         
-        <input type="number" id="answer-input" placeholder="?" onkeydown="if(event.key === 'Enter') checkAnswer()">
+        <input type="number" id="answer-input" placeholder="x = ?" onkeydown="if(event.key === 'Enter') checkAnswer()">
         <br>
-        <button onclick="checkAnswer()">Execute Code</button>
+        <button onclick="checkAnswer()">EXECUTE</button>
     </div>
 
     <div id="feedback-area"></div>
 
-    <p class="syntax-tip">Tip: (-3)² is 9. But -3² is -9.</p>
+    <p class="syntax-tip" id="tip-text">Tip: Multiplication comes before Addition.</p>
 </div>
 
 <script>
-    // The "Level Data" - Includes the original 4 plus 5 Hard Mode Exponents
     const questions = [
-        // --- LEVEL 1: The Warmup ---
+        // --- LEVEL 1: BEDMAS FUNDAMENTALS ---
         {
-            q: "-20 + (3 × 15)",
-            a: 25,
+            q: "10 - 2 × 3",
+            a: 4,
             level: "Basic",
-            steps: "1. Brackets: (3 × 15) = 45.<br>2. Add: -20 + 45.<br>3. Think: Debt of 20, paid 45. Surplus 25."
+            style: "lvl-basic",
+            steps: "1. <strong>Multiply First:</strong> 2 × 3 = 6.<br>2. <strong>Subtract:</strong> 10 - 6 = 4.<br><em>(Trap: Don't do 10-2 first!)</em>"
         },
         {
-            q: "10 - 2 × 3 + 1",
-            a: 5,
+            q: "−5 + (10 ÷ 2)",
+            a: 0,
             level: "Basic",
-            steps: "1. Mult first: 2 × 3 = 6.<br>2. Rewrite: 10 - 6 + 1.<br>3. L-to-R: 10 - 6 = 4.<br>4. Finish: 4 + 1 = 5."
-        },
-        {
-            q: "(-4 × 2) + (15 ÷ 3) - (-2)",
-            a: -1,
-            level: "Intermediate",
-            steps: "1. Brackets: (-8) + (5) - (-2).<br>2. Double Negative: -(-2) becomes +2.<br>3. Combine: -8 + 5 + 2.<br>4. -3 + 2 = -1."
-        },
-        {
-            q: "12 ÷ (2 + 4) × 5",
-            a: 10,
-            level: "Intermediate",
-            steps: "1. Brackets: (2+4) = 6.<br>2. Rewrite: 12 ÷ 6 × 5.<br>3. L-to-R: 12 ÷ 6 = 2.<br>4. Finish: 2 × 5 = 10."
+            style: "lvl-basic",
+            steps: "1. <strong>Brackets:</strong> 10 ÷ 2 = 5.<br>2. <strong>Add:</strong> -5 + 5 = 0.<br><em>(Zero Pair!)</em>"
         },
         
-        // --- LEVEL 2: HARD MODE (Exponents) ---
+        // --- LEVEL 2: INTEGERS & EXPONENTS ---
         {
-            q: "(-5)² + (-2)³",
-            a: 17,
+            q: "(-4)² - 10",
+            a: 6,
             level: "Hard Mode",
-            steps: "1. (-5)²: Negative is inside brackets. -5 × -5 = 25.<br>2. (-2)³: -2 × -2 × -2 = -8.<br>3. Rewrite: 25 + (-8).<br>4. Result: 17."
+            style: "lvl-hard",
+            steps: "1. <strong>Exponent:</strong> (-4)² means -4 × -4 = +16.<br>2. <strong>Subtract:</strong> 16 - 10 = 6."
         },
         {
-            q: "7⁰ + 5 × 2²",
-            a: 21,
+            q: "-3² + 5",
+            a: -4,
             level: "Hard Mode",
-            steps: "1. Exponents first! 7⁰ is ALWAYS 1.<br>2. 2² is 4.<br>3. Rewrite: 1 + 5 × 4.<br>4. Mult: 5 × 4 = 20.<br>5. Add: 1 + 20 = 21."
+            style: "lvl-hard",
+            steps: "1. <strong>Exponent Trap:</strong> -3² has NO brackets. It means -(3×3) = -9.<br>2. <strong>Add:</strong> -9 + 5 = -4."
         },
         {
-            q: "2(3² - 10) + 4",
-            a: 2,
+            q: "(−4 × 2) - (-3)",
+            a: -5,
             level: "Hard Mode",
-            steps: "1. Inside Brackets (Exp): 3² = 9.<br>2. Inside Brackets (Sub): 9 - 10 = -1.<br>3. Rewrite: 2(-1) + 4.<br>4. Mult: -2 + 4 = 2."
+            style: "lvl-hard",
+            steps: "1. <strong>Mult:</strong> -4 × 2 = -8.<br>2. <strong>Double Negative:</strong> - (-3) becomes +3.<br>3. <strong>Solve:</strong> -8 + 3 = -5."
+        },
+
+        // --- LEVEL 3: ALGEBRA GATEWAY (Solving for X) ---
+        {
+            q: "Solve for x:<br>3x = -15",
+            a: -5,
+            level: "Algebra",
+            style: "lvl-alg",
+            steps: "1. <strong>Goal:</strong> Isolate x.<br>2. <strong>Inverse:</strong> Divide both sides by 3.<br>3. <strong>Solve:</strong> -15 ÷ 3 = -5."
         },
         {
-            q: "(10 - 2)² ÷ 4",
-            a: 16,
-            level: "Hard Mode",
-            steps: "1. Brackets: (10 - 2) = 8.<br>2. Exponent: 8² = 64.<br>3. Division: 64 ÷ 4 = 16."
+            q: "Solve for x:<br>x - 8 = -2",
+            a: 6,
+            level: "Algebra",
+            style: "lvl-alg",
+            steps: "1. <strong>Goal:</strong> Get x alone.<br>2. <strong>Inverse:</strong> Add 8 to both sides (-2 + 8).<br>3. <strong>Result:</strong> x = 6."
         },
         {
-            q: "-3² + (-3)²",
-            a: 0,
-            level: "BOSS BATTLE",
-            steps: "1. The TRAP: -3² has NO brackets. It means -(3×3) = -9.<br>2. The SAFETY: (-3)² has brackets. It means -3 × -3 = +9.<br>3. Combine: -9 + 9 = 0."
+            q: "Solve for x:<br>2x + 1 = 11",
+            a: 5,
+            level: "Algebra",
+            style: "lvl-alg",
+            steps: "1. <strong>Remove Constant:</strong> Subtract 1 from 11 -> 10.<br>2. <strong>New Eq:</strong> 2x = 10.<br>3. <strong>Divide:</strong> 10 ÷ 2 = 5."
+        },
+        {
+            q: "Solve for x:<br>5 - x = 2",
+            a: 3,
+            level: "Algebra Boss",
+            style: "lvl-alg",
+            steps: "1. <strong>Move x:</strong> Add x to right side -> 5 = 2 + x.<br>2. <strong>Move 2:</strong> Subtract 2 from 5 -> 3.<br>3. <strong>Result:</strong> x = 3."
         }
     ];
 
@@ -219,48 +288,65 @@
         const gameArea = document.getElementById('game-area');
         const feedbackArea = document.getElementById('feedback-area');
         const progressBar = document.getElementById('progress-bar');
+        const problemBox = document.getElementById('problem-box');
 
         // Reset UI
         feedbackArea.style.display = 'none';
         feedbackArea.innerHTML = '';
         gameArea.style.display = 'block';
+        problemBox.classList.remove('shake', 'pulse');
         document.getElementById('answer-input').value = '';
         document.getElementById('answer-input').focus();
 
         // Check for Win
         if(currentIdx >= questions.length) {
             gameArea.innerHTML = `
-                <h2>🎉 COURSE COMPLETE 🎉</h2>
+                <h2>👑 GRIND COMPLETE 👑</h2>
+                <div style="font-size: 3rem; margin: 20px;">🏆</div>
                 <p>Final XP: ${score} / ${questions.length}</p>
                 <p>Max Streak: ${streak}</p>
                 <button onclick="location.reload()">Prestige (Restart)</button>
             `;
             progressBar.style.width = '100%';
+            document.getElementById('level-display').innerText = "MAX";
             return;
         }
 
         // Load Question
         const q = questions[currentIdx];
         document.getElementById('problem-box').innerHTML = `
-            <span style="font-size: 0.5em; display:block; color: #bdc3c7; margin-bottom: 10px;">${q.level}</span>
+            <span class="level-badge ${q.style}">${q.level}</span><br>
             ${q.q}
         `;
         
-        // Update Progress
+        // Update Stats
         const percent = (currentIdx / questions.length) * 100;
         progressBar.style.width = `${percent}%`;
+        document.getElementById('level-display').innerText = Math.floor((currentIdx/3) + 1);
+
+        // Update Tip based on level
+        if(q.level === "Algebra" || q.level === "Algebra Boss") {
+            document.getElementById('tip-text').innerText = "Tip: Do the opposite (Inverse) operation to isolate x.";
+        } else {
+            document.getElementById('tip-text').innerText = "Tip: (-3)² is 9. But -3² is -9.";
+        }
     }
 
     function checkAnswer() {
-        const userAns = parseInt(document.getElementById('answer-input').value);
+        const inputEl = document.getElementById('answer-input');
+        const userAns = parseInt(inputEl.value);
         const feedbackArea = document.getElementById('feedback-area');
         const currentQ = questions[currentIdx];
         const gameArea = document.getElementById('game-area');
+        const problemBox = document.getElementById('problem-box');
 
-        // Simple validation
-        if (isNaN(userAns)) return;
+        if (isNaN(userAns)) {
+            problemBox.classList.add('shake');
+            setTimeout(() => problemBox.classList.remove('shake'), 500);
+            return;
+        }
 
-        // Hide input area temporarily
+        // Hide input area
         gameArea.style.display = 'none';
         feedbackArea.style.display = 'block';
 
@@ -270,23 +356,25 @@
         if(isCorrect) {
             score++;
             streak++;
+            problemBox.classList.add('pulse'); // Add visual pulse
             feedbackHTML = `
                 <div class="feedback-card correct">
-                    <h3>✅ Correct!</h3>
+                    <h3>✅ Critical Hit!</h3>
                     <p>${currentQ.steps}</p>
                     <button onclick="nextQuestion()">Next Level >></button>
                 </div>
             `;
         } else {
             streak = 0;
+            problemBox.classList.add('shake'); // Add visual shake
             feedbackHTML = `
                 <div class="feedback-card incorrect">
-                    <h3>❌ Syntax Error</h3>
+                    <h3>❌ Damage Taken</h3>
                     <p><strong>Your answer:</strong> ${userAns}</p>
                     <p><strong>Correct answer:</strong> ${currentQ.a}</p>
-                    <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.1);">
+                    <hr>
                     <p>${currentQ.steps}</p>
-                    <button onclick="nextQuestion()">Try Again >></button>
+                    <button onclick="nextQuestion()">Recover & Continue >></button>
                 </div>
             `;
         }
