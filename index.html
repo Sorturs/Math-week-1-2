@@ -19,18 +19,18 @@
         <header class="text-center mb-8">
             <h1 class="text-3xl font-bold text-slate-800">EQAO Cram-Machine</h1>
             <p class="text-slate-500 mt-2">Cycle 1-7 Practice Module</p>
-            <div id="progress" class="mt-4 text-sm font-semibold text-blue-600">Question 0/0</div>
+            <div id="progress" class="mt-4 text-sm font-semibold text-blue-600">Loading...</div>
         </header>
 
         <div id="game-container" class="perspective-1000 w-full h-64 mb-8 cursor-pointer group" onclick="flipCard()">
             <div id="card" class="relative w-full h-full text-center transition-transform preserve-3d">
                 <!-- Front -->
-                <div id="front" class="absolute w-full h-full bg-blue-500 text-white rounded-xl flex items-center justify-center p-6 backface-hidden shadow-lg">
-                    <p class="text-xl font-medium">Loading...</p>
+                <div id="front" class="absolute w-full h-full bg-blue-500 text-white rounded-xl flex items-center justify-center p-6 backface-hidden shadow-lg text-2xl font-bold">
+                    Initializing...
                 </div>
                 <!-- Back -->
-                <div id="back" class="absolute w-full h-full bg-slate-800 text-white rounded-xl flex items-center justify-center p-6 backface-hidden rotate-y-180 shadow-lg">
-                    <p class="text-lg">Answer loading...</p>
+                <div id="back" class="absolute w-full h-full bg-slate-800 text-white rounded-xl flex items-center justify-center p-6 backface-hidden rotate-y-180 shadow-lg text-xl">
+                    Answer
                 </div>
             </div>
         </div>
@@ -98,7 +98,7 @@
             if (currentIndex < currentQuestions.length - 1) {
                 currentIndex++;
                 renderQuestion();
-            }=`
+            }
         }
 
         function prevQuestion() {
@@ -108,7 +108,6 @@
             }
         }
 
-        // Initialize on load
         window.onload = startExam;
     </script>
 </body>
