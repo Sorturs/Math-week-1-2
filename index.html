@@ -3,67 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EQAO Cram-Machine</title>
+    <title>EQAO Exam Simulator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .perspective-1000 { perspective: 1000px; }
-        .preserve-3d { transform-style: preserve-3d; }
-        .backface-hidden { backface-visibility: hidden; }
-        .rotate-y-180 { transform: rotateY(180deg); }
-        .transition-transform { transition: transform 0.6s; }
-    </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
 
-    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
         <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-slate-800">EQAO Cram-Machine</h1>
-            <p class="text-slate-500 mt-2">Cycle 1-7 Practice Module</p>
-            <div id="progress" class="mt-4 text-sm font-semibold text-blue-600">Loading...</div>
+            <h1 class="text-3xl font-bold text-slate-800">EQAO Exam Simulator</h1>
+            <p class="text-slate-500 mt-2">Mode: Full Practice Exam</p>
+            <div id="progress" class="mt-4 text-sm font-semibold text-blue-600">Initializing...</div>
         </header>
 
-        <div id="game-container" class="perspective-1000 w-full h-64 mb-8 cursor-pointer group" onclick="flipCard()">
-            <div id="card" class="relative w-full h-full text-center transition-transform preserve-3d">
-                <!-- Front -->
-                <div id="front" class="absolute w-full h-full bg-blue-500 text-white rounded-xl flex items-center justify-center p-6 backface-hidden shadow-lg text-2xl font-bold">
-                    Initializing...
-                </div>
-                <!-- Back -->
-                <div id="back" class="absolute w-full h-full bg-slate-800 text-white rounded-xl flex items-center justify-center p-6 backface-hidden rotate-y-180 shadow-lg text-xl">
-                    Answer
-                </div>
+        <div id="exam-container" class="space-y-6">
+            <div id="question-box" class="p-6 bg-slate-50 rounded-xl border border-slate-200 text-lg font-medium text-slate-800 min-h-[120px] flex items-center justify-center">
+                Loading question...
             </div>
-        </div>
 
-        <div class="flex justify-between items-center gap-4">
-            <button onclick="prevQuestion()" class="px-6 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-bold">Previous</button>
-            <button onclick="startExam()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold">Reshuffle</button>
-            <button onclick="nextQuestion()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold">Next</button>
+            <input type="text" id="answer-input" placeholder="Type your answer here..." 
+                   class="w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+
+            <div id="feedback" class="hidden p-4 rounded-lg font-bold"></div>
+
+            <div class="flex justify-between items-center gap-4">
+                <button onclick="submitAnswer()" id="submit-btn" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">Submit Answer</button>
+                <button onclick="nextQuestion()" id="next-btn" class="hidden w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition">Next Question</button>
+            </div>
         </div>
     </div>
 
     <script>
         const questions = [
             { q: "What does 'm' represent in y = mx + b?", a: "Slope" },
-            { q: "What is the formula for the sum of interior angles of a polygon with n sides?", a: "(n-2) × 180°" },
+            { q: "What is the formula for the sum of interior angles of a polygon with n sides?", a: "(n-2) * 180" },
             { q: "What is the Pythagorean Theorem?", a: "a² + b² = c²" },
             { q: "What is the slope of a line parallel to y = 2x + 5?", a: "2" },
-            { q: "What are the slopes of perpendicular lines?", a: "Negative reciprocals (e.g., 2 and -1/2)" },
             { q: "Expand 2(x + 3)", a: "2x + 6" },
             { q: "What is the quotient rule for exponents: x^a / x^b?", a: "x^(a - b)" },
             { q: "What is the product rule for exponents: x^a * x^b?", a: "x^(a + b)" },
-            { q: "Evaluate 3^-2", a: "1/9 (or 0.111...)" },
-            { q: "If the Point of Intersection (POI) is (2, 3), what does that mean?", a: "Both lines share the coordinates (2, 3)" },
-            { q: "What is BEDMAS?", a: "Brackets, Exponents, Division, Multiplication, Addition, Subtraction" },
-            { q: "Depreciation means the value of an item is...", a: "Decreasing over time" },
+            { q: "Evaluate 3^-2", a: "1/9" },
+            { q: "Depreciation means the value of an item is...", a: "Decreasing" },
             { q: "How do you isolate y in 2x + y = 10?", a: "y = -2x + 10" },
-            { q: "What is a rational number?", a: "A number that can be expressed as a fraction" },
-            { q: "What is the area of a rectangle with sides l and w?", a: "Area = l * w" }
+            { q: "Area of a rectangle?", a: "l * w" },
+            { q: "What is the slope of a perpendicular line to y = 1/2x?", a: "-2" },
+            { q: "Sum of angles in a triangle?", a: "180" },
+            { q: "BEDMAS stands for?", a: "Brackets Exponents Division Multiplication Addition Subtraction" }
         ];
 
         let currentQuestions = [];
         let currentIndex = 0;
-        let isFlipped = false;
+        let score = 0;
 
         function shuffle(array) {
             let arr = [...array];
@@ -77,34 +66,60 @@
         function startExam() {
             currentQuestions = shuffle(questions);
             currentIndex = 0;
+            score = 0;
             renderQuestion();
         }
 
         function renderQuestion() {
-            isFlipped = false;
-            document.getElementById('card').style.transform = 'rotateY(0deg)';
-            document.getElementById('front').innerText = currentQuestions[currentIndex].q;
-            document.getElementById('back').innerText = currentQuestions[currentIndex].a;
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('submit-btn').classList.remove('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('answer-input').value = '';
+            document.getElementById('question-box').innerText = currentQuestions[currentIndex].q;
             document.getElementById('progress').innerText = `Question ${currentIndex + 1}/${currentQuestions.length}`;
+            document.getElementById('answer-input').focus();
         }
 
-        function flipCard() {
-            const card = document.getElementById('card');
-            isFlipped = !isFlipped;
-            card.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+        function submitAnswer() {
+            const input = document.getElementById('answer-input').value.trim();
+            const correct = currentQuestions[currentIndex].a;
+            const feedback = document.getElementById('feedback');
+            
+            feedback.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+            
+            if (input.toLowerCase() === correct.toLowerCase()) {
+                feedback.innerText = "Correct!";
+                feedback.classList.add('bg-green-100', 'text-green-800');
+                score++;
+            } else {
+                feedback.innerText = `Incorrect. Correct answer: ${correct}`;
+                feedback.classList.add('bg-red-100', 'text-red-800');
+            }
+            
+            document.getElementById('submit-btn').classList.add('hidden');
+            document.getElementById('next-btn').classList.remove('hidden');
         }
+
+        document.getElementById('answer-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (document.getElementById('submit-btn').classList.contains('hidden')) {
+                    nextQuestion();
+                } else {
+                    submitAnswer();
+                }
+            }
+        });
 
         function nextQuestion() {
             if (currentIndex < currentQuestions.length - 1) {
                 currentIndex++;
                 renderQuestion();
-            }
-        }
-
-        function prevQuestion() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                renderQuestion();
+            } else {
+                document.getElementById('exam-container').innerHTML = `<div class="text-center p-8">
+                    <h2 class="text-2xl font-bold">Exam Complete!</h2>
+                    <p class="mt-4 text-xl">Final Score: ${score}/${currentQuestions.length}</p>
+                    <button onclick="location.reload()" class="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg">Restart Exam</button>
+                </div>`;
             }
         }
 
