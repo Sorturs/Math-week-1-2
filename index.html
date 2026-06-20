@@ -3,508 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Speedrun v5.0: Infinite Gen</title>
+    <title>EQAO Cram-Machine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary: #6c5ce7;
-            --secondary: #2d3436;
-            --accent: #00cec9;
-            --success: #00b894;
-            --danger: #d63031;
-            --bg: #dfe6e9;
-            --tile-red: #ff7675;
-            --tile-blue: #74b9ff;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            overflow-x: hidden;
-        }
-
-        .game-container {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            width: 90%;
-            max-width: 550px;
-            text-align: center;
-            border-top: 6px solid var(--primary);
-            position: relative;
-            overflow: hidden;
-        }
-
-        h1 { color: var(--secondary); margin-bottom: 0.5rem; font-size: 1.8rem; letter-spacing: -1px;}
-        .stats { display: flex; justify-content: space-between; margin-bottom: 1.5rem; font-weight: 700; color: #636e72; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;}
-        
-        #problem-box {
-            background: var(--secondary);
-            color: var(--accent);
-            padding: 2rem;
-            border-radius: 12px;
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            min-height: 140px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Times New Roman', Times, serif; /* Math font */
-            font-style: italic;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
-            border: 2px solid #b2bec3;
-            transition: transform 0.1s;
-            flex-direction: column;
-        }
-
-        /* MATH RENDERING CSS */
-        .fraction {
-            display: inline-block;
-            text-align: center;
-            vertical-align: middle;
-            margin: 0 5px;
-            font-style: normal;
-        }
-        .fraction .top {
-            display: block;
-            border-bottom: 2px solid var(--accent);
-            padding: 2px;
-        }
-        .fraction .bottom {
-            display: block;
-            padding: 2px;
-        }
-        
-        .radical {
-            display: inline-block;
-            margin: 0 2px;
-            font-style: normal;
-            white-space: nowrap;
-        }
-        .radical .index {
-            font-size: 0.6em;
-            vertical-align: super;
-            margin-right: -4px;
-        }
-        .radical .symbol {
-            font-size: 1.2em;
-        }
-        .radical .radicand {
-            border-top: 2px solid var(--accent);
-            padding-top: 1px;
-            padding-left: 2px;
-            display: inline-block;
-        }
-
-        .shake { animation: shake 0.5s; }
-        .pulse { animation: pulse 0.3s; }
-
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); box-shadow: 0 0 15px var(--success); }
-            100% { transform: scale(1); }
-        }
-
-        input {
-            width: 60%;
-            padding: 15px;
-            font-size: 1.5rem;
-            border: 3px solid #dfe6e9;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            text-align: center;
-            font-family: 'Segoe UI', sans-serif;
-            font-weight: bold;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        input:focus { border-color: var(--primary); }
-
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        button:hover { background: #74b9ff; transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
-
-        #feedback-area {
-            margin-top: 1.5rem;
-            display: none;
-        }
-
-        .feedback-card {
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: left;
-            line-height: 1.6;
-            animation: slideUp 0.3s ease-out;
-            position: relative;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .correct { background: #dff9fb; color: #009432; border: 2px solid var(--success); }
-        .incorrect { background: #ff7675; color: white; border: 2px solid var(--danger); }
-        .incorrect h3 { color: white; }
-        .incorrect hr { border-color: rgba(255,255,255,0.3); }
-        
-        .syntax-tip {
-            font-size: 0.85rem;
-            color: #b2bec3;
-            margin-top: 2rem;
-            font-style: italic;
-        }
-
-        /* Progress Bar */
-        #progress-container {
-            width: 100%;
-            background-color: #dfe6e9;
-            height: 8px;
-            border-radius: 4px;
-            margin-bottom: 25px;
-            overflow: hidden;
-            position: relative;
-        }
-        #progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--primary));
-            width: 0%;
-            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .level-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
-        .lvl-bedmas { background: #ffeaa7; color: #d35400; }
-        .lvl-tiles { background: #fab1a0; color: #2d3436; }
-        .lvl-hard { background: #a29bfe; color: #2d3436; }
-        .lvl-real { background: #6c5ce7; color: white; }
-
-        /* Tile Visuals for Feedback */
-        .tile {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin: 0 2px;
-            vertical-align: middle;
-            border: 1px solid rgba(0,0,0,0.2);
-            border-radius: 4px;
-        }
-        .t-red { background-color: var(--tile-red); }
-        .t-blue { background-color: var(--tile-blue); }
-
+        .perspective-1000 { perspective: 1000px; }
+        .preserve-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .transition-transform { transition: transform 0.6s; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
 
-<div class="game-container">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h1>MATH SPEEDRUN</h1>
-        <span style="font-size:0.8rem; color:#b2bec3;">v5.0 (Infinite)</span>
-    </div>
-    
-    <div id="progress-container">
-        <div id="progress-bar"></div>
-    </div>
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800">EQAO Cram-Machine</h1>
+            <p class="text-slate-500 mt-2">Cycle 1-7 Practice Module</p>
+            <div id="progress" class="mt-4 text-sm font-semibold text-blue-600">Question 0/0</div>
+        </header>
 
-    <div class="stats">
-        <span>LVL: <span id="level-display">1</span></span>
-        <span>XP: <span id="score">0</span></span>
-        <span>Streak: <span id="streak">0</span></span>
-    </div>
-
-    <div id="game-area">
-        <div id="problem-box">Loading...</div>
-        
-        <input type="number" step="0.01" id="answer-input" placeholder="?" onkeydown="if(event.key === 'Enter') checkAnswer()">
-        <br>
-        <button onclick="checkAnswer()">EXECUTE</button>
-    </div>
-
-    <div id="feedback-area"></div>
-
-    <p class="syntax-tip" id="tip-text">Loading instructions...</p>
-</div>
-
-<script>
-    // --- HELPER FUNCTIONS ---
-    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-    const drawTiles = (count, color) => {
-        let html = '';
-        const cClass = color === 'red' ? 't-red' : 't-blue';
-        for(let i=0; i<Math.abs(count); i++) html += `<span class="tile ${cClass}"></span>`;
-        return html;
-    };
-    
-    // --- QUESTION GENERATORS ---
-
-    // 1. BEDMAS Generator (Dynamic)
-    function genBedmas() {
-        const type = rand(1, 3);
-        if (type === 1) { // 10 - 2 x 3 style
-            const a = rand(5, 15);
-            const b = rand(2, 5);
-            const c = rand(2, 5);
-            return {
-                q: `${a} - ${b} × ${c}`,
-                a: a - (b * c),
-                level: "BEDMAS",
-                style: "lvl-bedmas",
-                steps: `1. <strong>Multiply First:</strong> ${b} × ${c} = ${b*c}<br>2. <strong>Subtract:</strong> ${a} - ${b*c} = ${a - (b*c)}`
-            };
-        } else if (type === 2) { // Brackets (2 + 3) x 4
-            const a = rand(2, 6);
-            const b = rand(2, 6);
-            const c = rand(2, 5);
-            return {
-                q: `(${a} + ${b}) × ${c}`,
-                a: (a + b) * c,
-                level: "BEDMAS",
-                style: "lvl-bedmas",
-                steps: `1. <strong>Brackets:</strong> ${a} + ${b} = ${a+b}<br>2. <strong>Multiply:</strong> ${a+b} × ${c} = ${(a+b)*c}`
-            };
-        } else { // Exponents -3^2 + 5
-             const base = rand(2, 4);
-             const add = rand(2, 10);
-             return {
-                 q: `-${base}<sup>2</sup> + ${add}`,
-                 a: -(base*base) + add,
-                 level: "Exponents",
-                 style: "lvl-hard",
-                 steps: `1. <strong>The Trap:</strong> -${base}² means -(${base}×${base}) = -${base*base}<br>2. <strong>Add:</strong> -${base*base} + ${add} = ${-(base*base)+add}`
-             };
-        }
-    }
-
-    // 2. Tile/Integer Generator (Dynamic)
-    function genTiles() {
-        const type = rand(1, 2);
-        if (type === 1) { // Simple Cancellation
-            const red = rand(3, 8);
-            const blue = rand(3, 8);
-            const diff = red - blue;
-            const resultColor = diff >= 0 ? 'red' : 'blue';
-            return {
-                q: `Tile Battle:<br>${red} Reds vs ${blue} Blues`,
-                a: diff,
-                level: "Integer Tiles",
-                style: "lvl-tiles",
-                steps: `1. <strong>Battle:</strong> The smaller army (${Math.min(red, blue)}) is wiped out.<br>2. <strong>Result:</strong> ${Math.abs(diff)} ${resultColor}s survive.`
-            };
-        } else { // The Subtraction Trap (Double Negative)
-            const start = rand(2, 8);
-            const subtract = rand(2, 8); // subtracting negative
-            return {
-                q: `${start} - (-${subtract})`,
-                a: start + subtract,
-                level: "Integer Tiles",
-                style: "lvl-tiles",
-                steps: `1. <strong>Teleport Rule:</strong> -(-) becomes +.<br>2. <strong>Rewrite:</strong> ${start} + ${subtract}<br>3. <strong>Solve:</strong> ${start+subtract}`
-            };
-        }
-    }
-
-    // 3. Real Number Sorting (Hard Coded Pool from Image + Logic)
-    // 1 = Rational, 0 = Irrational
-    const hardRealNums = [
-        { q: `<div class="fraction"><span class="top">&radic;<span style="text-decoration:overline">49</span></span><span class="bottom">7</span></div>`, a: 1, steps: "√49 is 7. So this is 7/7 = 1. (Rational)" },
-        { q: `<div class="fraction"><span class="top">&radic;<span style="text-decoration:overline">50</span></span><span class="bottom">5</span></div>`, a: 0, steps: "√50 is NOT a perfect square. It's ≈7.07. Divided by 5 it's still messy. (Irrational)" },
-        { q: `<span class="radical"><span class="index">4</span><span class="symbol">&radic;</span><span class="radicand">2</span></span>`, a: 0, steps: "4th root of 2 is not a whole number. Roots of non-perfect powers are Irrational." },
-        { q: `3.14159`, a: 1, steps: "<strong>Trick!</strong> This stops. It doesn't have '...'. So it's a decimal. (Rational)" },
-        { q: `&pi;`, a: 0, steps: "Pi goes on forever without repeating. (Irrational)" },
-        { q: `0.101001000...`, a: 0, steps: "The pattern changes (adds more zeros). Changing pattern = Irrational." },
-        { q: `0.999...`, a: 1, steps: "Repeating pattern = Rational. (Fun fact: This equals 1)." },
-        { q: `<span class="radical"><span class="symbol">&radic;</span><span class="radicand">12</span></span> + <span class="radical"><span class="symbol">&radic;</span><span class="radicand">3</span></span>`, a: 0, steps: "√12 is 2√3. Total is 3√3. Still contains a root. (Irrational)" },
-        { q: `<div class="fraction"><span class="top">&radic;<span style="text-decoration:overline">9</span></span><span class="bottom">16</span></div>`, a: 1, steps: "√9 is 3. So this is 3/16. A fraction of integers is Rational." }
-    ];
-
-    function genRealNum() {
-        const item = hardRealNums[rand(0, hardRealNums.length - 1)];
-        return {
-            q: `<strong>Rational(1) or Irrational(0)?</strong><br><br>${item.q}`,
-            a: item.a,
-            level: "Real Numbers",
-            style: "lvl-real",
-            steps: item.steps
-        };
-    }
-
-    // --- GAME ENGINE ---
-    let questions = [];
-    let currentIdx = 0;
-    let score = 0;
-    let streak = 0;
-
-    function initGame() {
-        questions = [];
-        // Build a playlist of 25 questions
-        for(let i=0; i<9; i++) questions.push(genBedmas());
-        for(let i=0; i<8; i++) questions.push(genTiles());
-        for(let i=0; i<8; i++) questions.push(genRealNum());
-        
-        // Shuffle the playlist (Fisher-Yates)
-        for (let i = questions.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [questions[i], questions[j]] = [questions[j], questions[i]];
-        }
-
-        currentIdx = 0;
-        score = 0;
-        streak = 0;
-        document.getElementById('score').innerText = "0";
-        document.getElementById('streak').innerText = "0";
-        document.getElementById('progress-bar').style.width = "0%";
-        loadQuestion();
-    }
-
-    function loadQuestion() {
-        const gameArea = document.getElementById('game-area');
-        const feedbackArea = document.getElementById('feedback-area');
-        const progressBar = document.getElementById('progress-bar');
-        const problemBox = document.getElementById('problem-box');
-        const tipText = document.getElementById('tip-text');
-
-        // Reset UI
-        feedbackArea.style.display = 'none';
-        feedbackArea.innerHTML = '';
-        gameArea.style.display = 'block';
-        problemBox.classList.remove('shake', 'pulse');
-        document.getElementById('answer-input').value = '';
-        document.getElementById('answer-input').focus();
-
-        // Check for Win
-        if(currentIdx >= questions.length) {
-            gameArea.innerHTML = `
-                <h2>👑 RUN COMPLETE 👑</h2>
-                <div style="font-size: 3rem; margin: 20px;">♾️</div>
-                <p>Final XP: ${score} / ${questions.length}</p>
-                <button onclick="location.reload()">Start New Run</button>
-            `;
-            progressBar.style.width = '100%';
-            document.getElementById('level-display').innerText = "MAX";
-            return;
-        }
-
-        // Load Question
-        const q = questions[currentIdx];
-        document.getElementById('problem-box').innerHTML = `
-            <span class="level-badge ${q.style}">${q.level}</span>
-            <div style="margin-top:15px">${q.q}</div>
-        `;
-        
-        // Update Tip
-        if(q.level === "Real Numbers") {
-            tipText.innerText = "Type 1 for Rational (Pattern), 0 for Irrational (Chaos).";
-            document.getElementById('answer-input').placeholder = "1 or 0";
-        } else {
-            tipText.innerText = "Watch your signs! Left to right.";
-            document.getElementById('answer-input').placeholder = "?";
-        }
-
-        // Update Stats
-        const percent = (currentIdx / questions.length) * 100;
-        progressBar.style.width = `${percent}%`;
-        document.getElementById('level-display').innerText = currentIdx + 1;
-    }
-
-    function checkAnswer() {
-        const inputEl = document.getElementById('answer-input');
-        const userAns = parseFloat(inputEl.value);
-        const feedbackArea = document.getElementById('feedback-area');
-        const currentQ = questions[currentIdx];
-        const gameArea = document.getElementById('game-area');
-        const problemBox = document.getElementById('problem-box');
-
-        if (isNaN(userAns)) {
-            problemBox.classList.add('shake');
-            setTimeout(() => problemBox.classList.remove('shake'), 500);
-            return;
-        }
-
-        gameArea.style.display = 'none';
-        feedbackArea.style.display = 'block';
-
-        let isCorrect = Math.abs(userAns - currentQ.a) < 0.001; // Float tolerance
-        let feedbackHTML = '';
-
-        if(isCorrect) {
-            score++;
-            streak++;
-            problemBox.classList.add('pulse'); 
-            feedbackHTML = `
-                <div class="feedback-card correct">
-                    <h3>✅ Critical Hit!</h3>
-                    <p>${currentQ.steps}</p>
-                    <button onclick="nextQuestion()">Next >></button>
+        <div id="game-container" class="perspective-1000 w-full h-64 mb-8 cursor-pointer group" onclick="flipCard()">
+            <div id="card" class="relative w-full h-full text-center transition-transform preserve-3d">
+                <!-- Front -->
+                <div id="front" class="absolute w-full h-full bg-blue-500 text-white rounded-xl flex items-center justify-center p-6 backface-hidden shadow-lg">
+                    <p class="text-xl font-medium">Loading...</p>
                 </div>
-            `;
-        } else {
-            streak = 0;
-            problemBox.classList.add('shake'); 
-            feedbackHTML = `
-                <div class="feedback-card incorrect">
-                    <h3>❌ Damage Taken</h3>
-                    <p><strong>Your answer:</strong> ${userAns}</p>
-                    <p><strong>Correct answer:</strong> ${currentQ.a}</p>
-                    <hr>
-                    <p>${currentQ.steps}</p>
-                    <button onclick="nextQuestion()">Next >></button>
+                <!-- Back -->
+                <div id="back" class="absolute w-full h-full bg-slate-800 text-white rounded-xl flex items-center justify-center p-6 backface-hidden rotate-y-180 shadow-lg">
+                    <p class="text-lg">Answer loading...</p>
                 </div>
-            `;
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center gap-4">
+            <button onclick="prevQuestion()" class="px-6 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-bold">Previous</button>
+            <button onclick="startExam()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold">Reshuffle</button>
+            <button onclick="nextQuestion()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold">Next</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "What does 'm' represent in y = mx + b?", a: "Slope" },
+            { q: "What is the formula for the sum of interior angles of a polygon with n sides?", a: "(n-2) × 180°" },
+            { q: "What is the Pythagorean Theorem?", a: "a² + b² = c²" },
+            { q: "What is the slope of a line parallel to y = 2x + 5?", a: "2" },
+            { q: "What are the slopes of perpendicular lines?", a: "Negative reciprocals (e.g., 2 and -1/2)" },
+            { q: "Expand 2(x + 3)", a: "2x + 6" },
+            { q: "What is the quotient rule for exponents: x^a / x^b?", a: "x^(a - b)" },
+            { q: "What is the product rule for exponents: x^a * x^b?", a: "x^(a + b)" },
+            { q: "Evaluate 3^-2", a: "1/9 (or 0.111...)" },
+            { q: "If the Point of Intersection (POI) is (2, 3), what does that mean?", a: "Both lines share the coordinates (2, 3)" },
+            { q: "What is BEDMAS?", a: "Brackets, Exponents, Division, Multiplication, Addition, Subtraction" },
+            { q: "Depreciation means the value of an item is...", a: "Decreasing over time" },
+            { q: "How do you isolate y in 2x + y = 10?", a: "y = -2x + 10" },
+            { q: "What is a rational number?", a: "A number that can be expressed as a fraction" },
+            { q: "What is the area of a rectangle with sides l and w?", a: "Area = l * w" }
+        ];
+
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        function shuffle(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
         }
 
-        feedbackArea.innerHTML = feedbackHTML;
-        document.getElementById('score').innerText = score;
-        document.getElementById('streak').innerText = streak;
-    }
+        function startExam() {
+            currentQuestions = shuffle(questions);
+            currentIndex = 0;
+            renderQuestion();
+        }
 
-    function nextQuestion() {
-        currentIdx++;
-        loadQuestion();
-    }
+        function renderQuestion() {
+            isFlipped = false;
+            document.getElementById('card').style.transform = 'rotateY(0deg)';
+            document.getElementById('front').innerText = currentQuestions[currentIndex].q;
+            document.getElementById('back').innerText = currentQuestions[currentIndex].a;
+            document.getElementById('progress').innerText = `Question ${currentIndex + 1}/${currentQuestions.length}`;
+        }
 
-    // Start Game
-    initGame();
-</script>
+        function flipCard() {
+            const card = document.getElementById('card');
+            isFlipped = !isFlipped;
+            card.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+        }
 
+        function nextQuestion() {
+            if (currentIndex < currentQuestions.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            }=`
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        // Initialize on load
+        window.onload = startExam;
+    </script>
 </body>
 </html>
