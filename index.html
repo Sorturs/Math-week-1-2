@@ -3,127 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EQAO Exam Simulator</title>
+    <title>Grade 9 EQAO Math Mock Exam</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
-<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-50 min-h-screen p-4 md:p-8">
+    <div id="app" class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+        <h1 class="text-3xl font-bold mb-6 text-center text-blue-800">Grade 9 EQAO Math Mock Exam</h1>
+        
+        <div id="setup-screen" class="space-y-4">
+            <p class="text-center text-gray-600">30 Questions • Algebra, Geometry, Linear Relations, & Data.</p>
+            <button onclick="startExam('assisted')" class="w-full p-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">Assisted Mode (Hints)</button>
+            <button onclick="startExam('unassisted')" class="w-full p-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700">Unassisted Mode (Simulation)</button>
+        </div>
 
-    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-slate-800">EQAO Exam Simulator</h1>
-            <p class="text-slate-500 mt-2">Mode: Full Practice Exam</p>
-            <div id="progress" class="mt-4 text-sm font-semibold text-blue-600">Initializing...</div>
-        </header>
-
-        <div id="exam-container" class="space-y-6">
-            <div id="question-box" class="p-6 bg-slate-50 rounded-xl border border-slate-200 text-lg font-medium text-slate-800 min-h-[120px] flex items-center justify-center">
-                Loading question...
-            </div>
-
-            <input type="text" id="answer-input" placeholder="Type your answer here..." 
-                   class="w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-
-            <div id="feedback" class="hidden p-4 rounded-lg font-bold"></div>
-
-            <div class="flex justify-between items-center gap-4">
-                <button onclick="submitAnswer()" id="submit-btn" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">Submit Answer</button>
-                <button onclick="nextQuestion()" id="next-btn" class="hidden w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition">Next Question</button>
-            </div>
+        <div id="exam-screen" class="hidden space-y-6">
+            <div id="progress-bar" class="text-sm text-gray-500 font-mono"></div>
+            <div id="question-container" class="space-y-4 p-4 border-b border-gray-100"></div>
+            <div id="feedback" class="p-4 rounded-lg bg-blue-50 text-blue-800 hidden font-medium"></div>
         </div>
     </div>
 
     <script>
         const questions = [
-            { q: "What does 'm' represent in y = mx + b?", a: "Slope" },
-            { q: "What is the formula for the sum of interior angles of a polygon with n sides?", a: "(n-2) * 180" },
-            { q: "What is the Pythagorean Theorem?", a: "a² + b² = c²" },
-            { q: "What is the slope of a line parallel to y = 2x + 5?", a: "2" },
-            { q: "Expand 2(x + 3)", a: "2x + 6" },
-            { q: "What is the quotient rule for exponents: x^a / x^b?", a: "x^(a - b)" },
-            { q: "What is the product rule for exponents: x^a * x^b?", a: "x^(a + b)" },
-            { q: "Evaluate 3^-2", a: "1/9" },
-            { q: "Depreciation means the value of an item is...", a: "Decreasing" },
-            { q: "How do you isolate y in 2x + y = 10?", a: "y = -2x + 10" },
-            { q: "Area of a rectangle?", a: "l * w" },
-            { q: "What is the slope of a perpendicular line to y = 1/2x?", a: "-2" },
-            { q: "Sum of angles in a triangle?", a: "180" },
-            { q: "BEDMAS stands for?", a: "Brackets Exponents Division Multiplication Addition Subtraction" }
+            { q: "Solve for $x$: $2x + 5 = 15$", options: ["$x=5$", "$x=7$", "$x=10$", "$x=2$"], correct: 0 },
+            { q: "Evaluate $3^2 + 4^2$", options: ["$14$", "$25$", "$49$", "$7$"], correct: 1 },
+            { q: "Calculate $13\\%$ tax on $50", options: ["$5.00$", "$6.50$", "$65.00$", "$1.30$"], correct: 1 },
+            { q: "Simplify $x^3 \\cdot x^2$", options: ["$x^6$", "$x^5$", "$x^1$", "$2x^5$"], correct: 1 },
+            { q: "Slope of $y = 3x - 4$?", options: ["$-4$", "$1$", "$3$", "$3x$"], correct: 2 },
+            { q: "Solve $4x - 8 = 12$", options: ["$x=5$", "$x=4$", "$x=1$", "$x=2$"], correct: 0 },
+            { q: "Value of $2^3 + 2^2$", options: ["$12$", "$8$", "$16$", "$10$"], correct: 0 },
+            { q: "Area of rectangle length 5, width 4?", options: ["$18$", "$20$", "$9$", "$25$"], correct: 1 },
+            { q: "Perimeter of square side 6?", options: ["$36$", "$12$", "$24$", "$30$"], correct: 2 },
+            { q: "Simplify $(x^2)^3$", options: ["$x^5$", "$x^6$", "$x^8$", "$2x^3$"], correct: 1 },
+            { q: "If $2x = 10$, then $x+3$ is?", options: ["$5$", "$8$", "$13$", "$7$"], correct: 1 },
+            { q: "Convert $0.25$ to percentage?", options: ["$2.5\\%$", "$25\\%$", "$0.25\\%$", "$250\\%$"], correct: 1 },
+            { q: "Solve for $x$: $x/2 = 4$", options: ["$2$", "$6$", "$8$", "$4$"], correct: 2 },
+            { q: "Simplify $5x + 3x - 2x$", options: ["$6x$", "$10x$", "$4x$", "$5x$"], correct: 0 },
+            { q: "What is $\\sqrt{16}$?", options: ["$2$", "$8$", "$4$", "$16$"], correct: 2 },
+            { q: "Interior angles of a triangle sum to?", options: ["$90^\\circ$", "$180^\\circ$", "$360^\\circ$", "$270^\\circ$"], correct: 1 },
+            { q: "Slope of horizontal line is?", options: ["$1$", "$0$", "undefined", "$-1$"], correct: 1 },
+            { q: "Simplify $3(x+2)$?", options: ["$3x+2$", "$3x+6$", "$3x+5$", "$x+5$"], correct: 1 },
+            { q: "Solve $x+7=10$", options: ["$3$", "$17$", "$1$", "$7$"], correct: 0 },
+            { q: "Which is a linear relation?", options: ["$y=x^2$", "$y=2x+1$", "$y=1/x$", "$y=2^x$"], correct: 1 },
+            { q: "Volume of cube side 3?", options: ["$9$", "$6$", "$27$", "$18$"], correct: 2 },
+            { q: "Simplify $10^0$", options: ["$0$", "$10$", "$1$", "undefined"], correct: 2 },
+            { q: "Solve $3x=12$", options: ["$9$", "$4$", "$6$", "$36$"], correct: 1 },
+            { q: "Probability of rolling a 2 on a die?", options: ["$1/2$", "$1/6$", "$2/6$", "$1$"], correct: 1 },
+            { q: "Mean of 2, 4, 6?", options: ["$2$", "$4$", "$6$", "$12$"], correct: 1 },
+            { q: "Simplify $x^5/x^2$", options: ["$x^7$", "$x^3$", "$x^{2.5}$", "$x^{10}$"], correct: 1 },
+            { q: "If $y=x+5$, find $y$ when $x=2$", options: ["$5$", "$2$", "$7$", "$10$"], correct: 2 },
+            { q: "Solve $2x-1=9$", options: ["$5$", "$4$", "$10$", "$8$"], correct: 0 },
+            { q: "What is $50\\%$ of $80$?", options: ["$40$", "$30$", "$50$", "$20$"], correct: 0 },
+            { q: "Sum of angles in a quadrilateral?", options: ["$180^\\circ$", "$360^\\circ$", "$540^\\circ$", "$90^\\circ$"], correct: 1 }
         ];
 
-        let currentQuestions = [];
-        let currentIndex = 0;
-        let score = 0;
+        let state = { currentQ: 0, mode: '', score: 0 };
 
-        function shuffle(array) {
-            let arr = [...array];
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        }
-
-        function startExam() {
-            currentQuestions = shuffle(questions);
-            currentIndex = 0;
-            score = 0;
+        function startExam(mode) {
+            state.mode = mode; state.currentQ = 0; state.score = 0;
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('exam-screen').classList.remove('hidden');
             renderQuestion();
         }
 
         function renderQuestion() {
-            document.getElementById('feedback').classList.add('hidden');
-            document.getElementById('submit-btn').classList.remove('hidden');
-            document.getElementById('next-btn').classList.add('hidden');
-            document.getElementById('answer-input').value = '';
-            document.getElementById('question-box').innerText = currentQuestions[currentIndex].q;
-            document.getElementById('progress').innerText = `Question ${currentIndex + 1}/${currentQuestions.length}`;
-            document.getElementById('answer-input').focus();
-        }
-
-        function submitAnswer() {
-            const input = document.getElementById('answer-input').value.trim();
-            const correct = currentQuestions[currentIndex].a;
-            const feedback = document.getElementById('feedback');
-            
-            feedback.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
-            
-            if (input.toLowerCase() === correct.toLowerCase()) {
-                feedback.innerText = "Correct!";
-                feedback.classList.add('bg-green-100', 'text-green-800');
-                score++;
-            } else {
-                feedback.innerText = `Incorrect. Correct answer: ${correct}`;
-                feedback.classList.add('bg-red-100', 'text-red-800');
-            }
-            
-            document.getElementById('submit-btn').classList.add('hidden');
-            document.getElementById('next-btn').classList.remove('hidden');
-        }
-
-        document.getElementById('answer-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                if (document.getElementById('submit-btn').classList.contains('hidden')) {
-                    nextQuestion();
-                } else {
-                    submitAnswer();
-                }
-            }
-        });
-
-        function nextQuestion() {
-            if (currentIndex < currentQuestions.length - 1) {
-                currentIndex++;
-                renderQuestion();
-            } else {
-                document.getElementById('exam-container').innerHTML = `<div class="text-center p-8">
-                    <h2 class="text-2xl font-bold">Exam Complete!</h2>
-                    <p class="mt-4 text-xl">Final Score: ${score}/${currentQuestions.length}</p>
-                    <button onclick="location.reload()" class="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg">Restart Exam</button>
+            if (state.currentQ >= questions.length) { finishExam(); return; }
+            const q = questions[state.currentQ];
+            document.getElementById('progress-bar').innerText = `Question ${state.currentQ + 1} of 30`;
+            const container = document.getElementById('question-container');
+            container.innerHTML = `<h3 class="text-xl font-medium">${q.q}</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                    ${q.options.map((opt, i) => `<button onclick="handleAnswer(${i})" class="p-4 border rounded hover:bg-blue-50">${opt}</button>`).join('')}
                 </div>`;
-            }
+            if (window.MathJax) MathJax.typesetPromise([container]);
         }
 
-        window.onload = startExam;
+        function handleAnswer(idx) {
+            if (idx === questions[state.currentQ].correct) state.score++;
+            if (state.mode === 'assisted') {
+                const f = document.getElementById('feedback');
+                f.classList.remove('hidden');
+                f.innerText = idx === questions[state.currentQ].correct ? "Correct!" : "Try again: Isolate the variable.";
+            }
+            state.currentQ++;
+            renderQuestion();
+        }
+
+        function finishExam() {
+            document.getElementById('exam-screen').innerHTML = `<div class="text-center p-10"><h2 class="text-2xl font-bold">Exam Finished</h2><p class="text-lg">Score: ${state.score}/30</p><button onclick="location.reload()" class="mt-4 p-3 bg-gray-800 text-white rounded">Retry</button></div>`;
+        }
     </script>
 </body>
 </html>
